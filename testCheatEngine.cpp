@@ -7,21 +7,24 @@
 #include <memory.h>
 #include <tchar.h>
 #include <iostream>
+#include <list>
 
 using namespace std;
 
 
 void search(HANDLE handle, int target) {
+	list<int> addressList;
+
 	MEMORY_BASIC_INFORMATION info;
 	unsigned char* p = NULL;
-	
+ 
 	cout << "searching value: " << target << "..." << endl;
 
 	for (p = NULL;
 		VirtualQueryEx(handle, p, &info, sizeof(info)) == sizeof(info);
 		p += info.RegionSize)
 	{
-		if (info.State == MEM_COMMIT) {
+		if (info.State == MEM_COMMIT && info.AllocationProtect == PAGE_READWRITE && info.Type == MEM_PRIVATE) {
 			//cout << info.BaseAddress << "-" << info.RegionSize << " | " << info.Type << endl;
 			 
 			int value;
@@ -31,17 +34,17 @@ void search(HANDLE handle, int target) {
 				ReadProcessMemory(handle, (PBYTE*)targetAddr, &value, sizeof(value), 0);
 	 
 				if (value == target) {
-					cout << (int)info.BaseAddress + offset << endl;
+					 
+					cout << (int)info.BaseAddress + offset;
+					cout << " " << info.AllocationProtect;
+					cout << " " << info.Type << endl;
+					addressList.push_back((int)info.BaseAddress + offset);
 				}
 			}
 		}
 	}
 
-	DWORD targetAddr = (DWORD)(0x9a730);
-	int value;
-	ReadProcessMemory(handle, (PBYTE*)targetAddr, &value, sizeof(value), 0);
-
-	cout << value;
+	cout << "found " << addressList.size() << " items" << endl;
 }
 
 
