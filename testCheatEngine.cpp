@@ -7,45 +7,16 @@
 #include <memory.h>
 #include <tchar.h>
 #include <iostream>
-
+#include <list>
+#include "search.h"
+ 
 using namespace std;
 
-
-void search(HANDLE handle, int target) {
-	MEMORY_BASIC_INFORMATION info;
-	unsigned char* p = NULL;
-	
-	cout << "searching value: " << target << "..." << endl;
-
-	for (p = NULL;
-		VirtualQueryEx(handle, p, &info, sizeof(info)) == sizeof(info);
-		p += info.RegionSize)
-	{
-		if (info.State == MEM_COMMIT) {
-			//cout << info.BaseAddress << "-" << info.RegionSize << " | " << info.Type << endl;
-			 
-			int value;
-			for (int offset = 0; offset < (int)info.RegionSize; offset +=4) {
-				
-				DWORD targetAddr = (DWORD)((int)info.BaseAddress + offset);
-				ReadProcessMemory(handle, (PBYTE*)targetAddr, &value, sizeof(value), 0);
-	 
-				if (value == target) {
-					cout << (int)info.BaseAddress + offset << endl;
-				}
-			}
-		}
-	}
-
-	DWORD targetAddr = (DWORD)(0x9a730);
-	int value;
-	ReadProcessMemory(handle, (PBYTE*)targetAddr, &value, sizeof(value), 0);
-
-	cout << value;
-}
-
+int testSearch(HANDLE handle);
 
 int main() {
+	
+
 //	int n = 0x00400000 + 0x0017B0B8;
 //	int* basePtr = &n; // 0x00400000 + 0x0017B0B8; // windows default base addr + ac.exe = base pointer
 	
@@ -73,6 +44,7 @@ int main() {
 		exit(-1);
 	}
 	else {
+
 		DWORD processID; // store game process ID
 		GetWindowThreadProcessId(hwnd, &processID); // get game process ID
 		HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processID);
@@ -83,6 +55,9 @@ int main() {
 			exit(-1);
 		}
 		else {
+			//to test memory search:
+			testSearch(handle);
+			 
 			// Create infinte loop to write value into address
 			cout << "Hack begin" << endl;
 			while (true) {
@@ -92,6 +67,25 @@ int main() {
 	}
 
 	return 0;
+}
+
+int testSearch(HANDLE handle) {
+	//TODO: Make it as loop for continuously searching..
+
+	list<int>* addressList = new list<int>;
+
+	int value = 0;
+	cout << "Enter your search value: ";
+	cin >> value;
+	cout << "searching: " << value << endl;
+	newSearch(handle, value, *addressList);
+
+	while (true) {
+		cout << "Enter your search value: ";
+		cin >> value;
+		cout << "searching: " << value << endl;
+		contSearch(handle, value, *addressList);
+	}
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
