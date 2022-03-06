@@ -8,12 +8,14 @@
 #include <tchar.h>
 #include <iostream>
 #include <list>
-#include "search.h"
- 
+#include "search.h" 
+#include  <iomanip>
+
 using namespace std;
 
 void doNewSearch(HANDLE handle, list<int>& addressList);
 void doContSearch(HANDLE handle, list<int>& addressList);
+void listAddress(list<int>& addressList);
 
 int main(int argc, char* argv[]) {
 
@@ -37,7 +39,6 @@ int main(int argc, char* argv[]) {
 	GetWindowThreadProcessId(hwnd, &processID); // get game process ID
 	HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processID);
 
-	cout << "Test" << endl;
 	if (hwnd == NULL) {
 		cout << "Cannot find the game" << endl;
 		Sleep(3000); //wait for 3 seconds
@@ -51,20 +52,26 @@ int main(int argc, char* argv[]) {
 	char input = 0;
 
 	while (input != 'x') {
-		cout << "Menu: (n)New search, (c)Continue search (m)Modify value, (x)Exit" << endl;
+		cout << "Menu: (n)New search, (c)Continue search (m)Modify value, (l)List value, (x)Exit" << endl;
 		cin >> input;
 	
 		switch (input) {
 			case 'n':
 				doNewSearch(handle, *addressList);
+				listAddress(*addressList);
 				break;
 
 			case 'c':
 				doContSearch(handle, *addressList);
+				listAddress(*addressList);
 				break;
 
 			case 'm':
 				cout << "not implemented yet ...";
+				break;
+
+			case 'l':
+				listAddress(*addressList);
 				break;
 
 			case 'x':
@@ -138,10 +145,19 @@ void doContSearch(HANDLE handle, list<int>& addressList) {
 
 void listAddress(list<int>& addressList) {
 	int itemToList = 20;
+
 	std::list<int>::iterator it = addressList.begin();
-	while (it != addressList.end() || itemToList == 0) {
-		cout << *it << endl;
-		itemToList--;
+	int index = 0; 
+	while (it != addressList.end() && itemToList > index) {
+		std::cout << "[" << index << "] ";
+		std::cout << "0x" << std::setfill('0') << std::setw(10)  << std::hex << *it;
+		std::cout << std::dec << endl;
+		it++;
+		index++;
+	}
+
+	if (addressList.size() > itemToList) {
+		std::cout << "(another " << addressList.size() - itemToList << " hidden result.)" << endl;
 	}
 }
 

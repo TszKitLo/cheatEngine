@@ -16,6 +16,9 @@ void newSearch(HANDLE handle, int target, std::list<int>& addressList) {
 	unsigned char* p = NULL;
 
 	cout << "newSearch: searching value: " << target << "..." << endl;
+	int itemCount = 0;
+	int printDotPerItem = 10;
+	int newLinePerItem = 1000;
 
 	for (p = NULL;
 		VirtualQueryEx(handle, p, &info, sizeof(info)) == sizeof(info);
@@ -32,14 +35,31 @@ void newSearch(HANDLE handle, int target, std::list<int>& addressList) {
 
 				if (value == target) {
 
+					/***  Debug use:
 					cout << (int)info.BaseAddress + offset;
 					cout << " " << info.AllocationProtect;
 					cout << " " << info.Type << endl;
+					**/
 					addressList.push_back((int)info.BaseAddress + offset);
 				}
 			}
 		}
+
+		if (itemCount % printDotPerItem == 0) {
+			cout << ".";
+		}
+
+		/*
+		* TODO: fix the bug
+		if (itemCount % newLinePerItem == 0 && itemCount > 0) {
+			cout << "(Found " << itemCount << " items)" << endl;
+		}
+		*/
+
+		itemCount++;
+
 	}
+	cout << endl;
 
 	cout << "newSearch: found " << addressList.size() << " items" << endl;
 }
@@ -48,13 +68,14 @@ void contSearch(HANDLE handle, int target, list<int>& addressList) {
 
 	cout << "contSearch: addressList contains " << addressList.size() << " items" << endl;
 
-
 	int value;
 	std::list<int>::iterator it = addressList.begin();
 	while (it != addressList.end()) {
 		ReadProcessMemory(handle, (PBYTE*)*it, &value, sizeof(value), 0);
 
-		cout << value << "-" << *it << endl;
+		//Debug use:
+		//cout << value << "-" << *it << endl;
+
 		if (value != target) {
 			it = addressList.erase(it);
 
