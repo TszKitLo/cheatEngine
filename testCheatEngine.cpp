@@ -8,47 +8,14 @@
 #include <tchar.h>
 #include <iostream>
 #include <list>
-
+#include "search.h"
+ 
 using namespace std;
 
 
-void search(HANDLE handle, int target) {
-	list<int> addressList;
-
-	MEMORY_BASIC_INFORMATION info;
-	unsigned char* p = NULL;
- 
-	cout << "searching value: " << target << "..." << endl;
-
-	for (p = NULL;
-		VirtualQueryEx(handle, p, &info, sizeof(info)) == sizeof(info);
-		p += info.RegionSize)
-	{
-		if (info.State == MEM_COMMIT && info.AllocationProtect == PAGE_READWRITE && info.Type == MEM_PRIVATE) {
-			//cout << info.BaseAddress << "-" << info.RegionSize << " | " << info.Type << endl;
-			 
-			int value;
-			for (int offset = 0; offset < (int)info.RegionSize; offset +=4) {
-				
-				DWORD targetAddr = (DWORD)((int)info.BaseAddress + offset);
-				ReadProcessMemory(handle, (PBYTE*)targetAddr, &value, sizeof(value), 0);
-	 
-				if (value == target) {
-					 
-					cout << (int)info.BaseAddress + offset;
-					cout << " " << info.AllocationProtect;
-					cout << " " << info.Type << endl;
-					addressList.push_back((int)info.BaseAddress + offset);
-				}
-			}
-		}
-	}
-
-	cout << "found " << addressList.size() << " items" << endl;
-}
-
-
 int main() {
+	
+
 //	int n = 0x00400000 + 0x0017B0B8;
 //	int* basePtr = &n; // 0x00400000 + 0x0017B0B8; // windows default base addr + ac.exe = base pointer
 	
@@ -76,6 +43,7 @@ int main() {
 		exit(-1);
 	}
 	else {
+
 		DWORD processID; // store game process ID
 		GetWindowThreadProcessId(hwnd, &processID); // get game process ID
 		HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processID);
