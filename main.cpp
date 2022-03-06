@@ -12,30 +12,29 @@
  
 using namespace std;
 
-int testSearch(HANDLE handle);
+int doNewSearch(HANDLE handle);
 
-int main() {
-	
-
-//	int n = 0x00400000 + 0x0017B0B8;
-//	int* basePtr = &n; // 0x00400000 + 0x0017B0B8; // windows default base addr + ac.exe = base pointer
-	
-//	cout << "basePtr is " << hex << *basePtr << endl;
-//	cout << "basePtr is " << hex << &basePtr << endl;
-	
-	int baseAddr = 0x007551E0; // base pointer point to
-	int offset = 0x140; // ammo / money / whatever
-	int writeAmount = 20; // amount we want to write
+int main(int argc, char* argv[]) {
 
 
-	cout << "Base Addr is " << hex << baseAddr << endl;
-	cout << "Offset is " << hex << offset << endl;
-	cout << "Target Addr is " << hex << baseAddr + offset << endl;
+	char* winddowsName;
+	if (argc != 3) {
+		cout << "Usage: cheat_engine -n [Windows name]";
+		return 0;
+	}
 
-	DWORD targetAddr = (DWORD)(baseAddr + offset); // the amount address
-	cout << "Target Addr (DWORD) is " << targetAddr << endl;
+	if (strcmp (argv[1] , "-n") == 0  ) {
+		winddowsName = argv[2];
+	}
+	else {
+		cout << "error: unknow switch: " << argv[0];
+		exit(-1);
+	}
 
-	HWND hwnd = FindWindowA(NULL, "AssaultCube"); // find the window title of the game
+	DWORD processID; // store game process ID
+	HWND hwnd = FindWindowA(NULL, winddowsName); // find the window title of the game
+	GetWindowThreadProcessId(hwnd, &processID); // get game process ID
+	HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processID);
 
 	cout << "Test" << endl;
 	if (hwnd == NULL) {
@@ -43,33 +42,72 @@ int main() {
 		Sleep(3000); //wait for 3 seconds
 		exit(-1);
 	}
-	else {
 
-		DWORD processID; // store game process ID
-		GetWindowThreadProcessId(hwnd, &processID); // get game process ID
-		HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processID);
+	cout << "Created the windows handle" << endl;
 
-		if (processID == NULL) {
-			cout << "Cannot obtain process" << endl;
-			Sleep(3000);
-			exit(-1);
-		}
-		else {
-			//to test memory search:
-			testSearch(handle);
-			 
-			// Create infinte loop to write value into address
-			cout << "Hack begin" << endl;
-			while (true) {
-				WriteProcessMemory(handle, (PBYTE*)targetAddr, &writeAmount, sizeof(writeAmount), 0);
-			}
+	char input = 0;
+
+	while (input != 'x') {
+		cout << "Menu: (n)New search, (m)Modify value, (x)Exit" << endl;
+		cin >> input;
+	
+		switch (input) {
+			case 'n':
+				doNewSearch(handle);
+				break;
+
+			case 'm':
+				cout << "not implemented yet ...";
+				break;
+
+			case 'x':
+				exit(0);
+				break;
 		}
 	}
 
 	return 0;
+	/*
+	* modify value example..............
+	* 
+	* 
+	
+	//	int n = 0x00400000 + 0x0017B0B8;
+	//	int* basePtr = &n; // 0x00400000 + 0x0017B0B8; // windows default base addr + ac.exe = base pointer
+
+	//	cout << "basePtr is " << hex << *basePtr << endl;
+	//	cout << "basePtr is " << hex << &basePtr << endl;
+
+	int baseAddr = 0x007551E0; // base pointer point to
+	int offset = 0x140; // ammo / money / whatever
+	int writeAmount = 20; // amount we want to write
+	
+	cout << "Base Addr is " << hex << baseAddr << endl;
+	cout << "Offset is " << hex << offset << endl;
+	cout << "Target Addr is " << hex << baseAddr + offset << endl;
+
+	DWORD targetAddr = (DWORD)(baseAddr + offset); // the amount address
+	cout << "Target Addr (DWORD) is " << targetAddr << endl;
+
+	if (processID == NULL) {
+		cout << "Cannot obtain process" << endl;
+		Sleep(3000);
+		exit(-1);
+	}
+	else {
+		//to test memory search:
+		doSearch(handle);
+			 
+		// Create infinte loop to write value into address
+		cout << "Hack begin" << endl;
+		while (true) {
+			WriteProcessMemory(handle, (PBYTE*)targetAddr, &writeAmount, sizeof(writeAmount), 0);
+		}
+	}
+	*/
 }
 
-int testSearch(HANDLE handle) {
+int doNewSearch(HANDLE handle) {
 	//TODO: Make it as loop for continuously searching..
 
 	list<int>* addressList = new list<int>;
