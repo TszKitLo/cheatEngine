@@ -12,7 +12,8 @@
  
 using namespace std;
 
-int doNewSearch(HANDLE handle);
+void doNewSearch(HANDLE handle, list<int>& addressList);
+void doContSearch(HANDLE handle, list<int>& addressList);
 
 int main(int argc, char* argv[]) {
 
@@ -45,15 +46,21 @@ int main(int argc, char* argv[]) {
 
 	cout << "Created the windows handle" << endl;
 
+	list<int>* addressList = new list<int>;
+
 	char input = 0;
 
 	while (input != 'x') {
-		cout << "Menu: (n)New search, (m)Modify value, (x)Exit" << endl;
+		cout << "Menu: (n)New search, (c)Continue search (m)Modify value, (x)Exit" << endl;
 		cin >> input;
 	
 		switch (input) {
 			case 'n':
-				doNewSearch(handle);
+				doNewSearch(handle, *addressList);
+				break;
+
+			case 'c':
+				doContSearch(handle, *addressList);
 				break;
 
 			case 'm':
@@ -107,24 +114,37 @@ int main(int argc, char* argv[]) {
 	*/
 }
 
-int doNewSearch(HANDLE handle) {
-	//TODO: Make it as loop for continuously searching..
-
-	list<int>* addressList = new list<int>;
-
+void doNewSearch(HANDLE handle, list<int> & addressList) {
 	int value = 0;
 	cout << "Enter your search value: ";
 	cin >> value;
 	cout << "searching: " << value << endl;
-	newSearch(handle, value, *addressList);
+	newSearch(handle, value, addressList);
+}
 
-	while (true) {
-		cout << "Enter your search value: ";
-		cin >> value;
-		cout << "searching: " << value << endl;
-		contSearch(handle, value, *addressList);
+void doContSearch(HANDLE handle, list<int>& addressList) {
+	int value = 0;
+
+	if (addressList.size() == 0) {
+		cout << "The list is empty, please start a new search" << endl;
+	}
+
+	cout << "Enter the value for next search: ";
+	cin >> value;
+	cout << "searching: " << value << endl;
+	contSearch(handle, value, addressList);
+	 
+}
+
+void listAddress(list<int>& addressList) {
+	int itemToList = 20;
+	std::list<int>::iterator it = addressList.begin();
+	while (it != addressList.end() || itemToList == 0) {
+		cout << *it << endl;
+		itemToList--;
 	}
 }
+
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
