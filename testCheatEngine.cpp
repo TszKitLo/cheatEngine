@@ -12,6 +12,7 @@
  
 using namespace std;
 
+int testSearch(HANDLE handle);
 
 int main() {
 	
@@ -54,6 +55,9 @@ int main() {
 			exit(-1);
 		}
 		else {
+			//to test memory search:
+			testSearch(handle);
+			 
 			// Create infinte loop to write value into address
 			cout << "Hack begin" << endl;
 			while (true) {
@@ -63,6 +67,25 @@ int main() {
 	}
 
 	return 0;
+}
+
+int testSearch(HANDLE handle) {
+	//TODO: Make it as loop for continuously searching..
+
+	list<int>* addressList = new list<int>;
+
+	int value = 0;
+	cout << "Enter your search value: ";
+	cin >> value;
+	cout << "searching: " << value << endl;
+	newSearch(handle, value, *addressList);
+
+	while (true) {
+		cout << "Enter your search value: ";
+		cin >> value;
+		cout << "searching: " << value << endl;
+		contSearch(handle, value, *addressList);
+	}
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
