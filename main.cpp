@@ -16,6 +16,7 @@ using namespace std;
 void doNewSearch(HANDLE handle, list<int>& addressList);
 void doContSearch(HANDLE handle, list<int>& addressList);
 void listAddress(list<int>& addressList);
+void doModify(HANDLE handle, list<int>& addressList);
 
 int main(int argc, char* argv[]) {
 
@@ -52,7 +53,7 @@ int main(int argc, char* argv[]) {
 	char input = 0;
 
 	while (input != 'x') {
-		cout << "Menu: (n)New search, (c)Continue search (m)Modify value, (l)List value, (x)Exit" << endl;
+		cout << "Menu: (n)New search, (c)Continue search (m)Modify value, (l)List address, (x)Exit" << endl;
 		cin >> input;
 	
 		switch (input) {
@@ -67,7 +68,7 @@ int main(int argc, char* argv[]) {
 				break;
 
 			case 'm':
-				cout << "not implemented yet ...";
+				doModify(handle, *addressList);
 				break;
 
 			case 'l':
@@ -121,11 +122,25 @@ int main(int argc, char* argv[]) {
 	*/
 }
 
+void doModify(HANDLE handle, list<int>& addressList) {
+	listAddress(addressList);
+	int index;
+	int value;
+	cout << "Enter index address you want to change:" << endl;
+	cin >> index;
+	cout << "Enter value" << endl;
+	cin >> value;
+
+	std::list<int>::iterator it = addressList.begin();
+	std::advance(it, index);
+
+	WriteProcessMemory(handle, (PBYTE*)(*it), &value, sizeof(value), 0);
+}
+
 void doNewSearch(HANDLE handle, list<int> & addressList) {
 	int value = 0;
 	cout << "Enter your search value: ";
 	cin >> value;
-	cout << "searching: " << value << endl;
 	newSearch(handle, value, addressList);
 }
 
@@ -133,7 +148,7 @@ void doContSearch(HANDLE handle, list<int>& addressList) {
 	int value = 0;
 
 	if (addressList.size() == 0) {
-		cout << "The list is empty, please start a new search" << endl;
+		return; 
 	}
 
 	cout << "Enter the value for next search: ";
@@ -145,6 +160,11 @@ void doContSearch(HANDLE handle, list<int>& addressList) {
 
 void listAddress(list<int>& addressList) {
 	int itemToList = 20;
+
+	if (addressList.size() == 0) {
+		cout << "The list is empty, please start a new search" << endl;
+		return;
+	}
 
 	std::list<int>::iterator it = addressList.begin();
 	int index = 0; 
