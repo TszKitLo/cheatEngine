@@ -8,9 +8,11 @@
 #include <tchar.h>
 #include <iostream>
 #include <list>
+#include "addressitem.h"
+
 using namespace std;
 
-void newSearch(HANDLE handle, int target, std::list<int>& addressList) {
+void newSearch(HANDLE handle, int target, std::list<AddressItem>& addressList) {
 
 	MEMORY_BASIC_INFORMATION info;
 	unsigned char* p = NULL;
@@ -40,7 +42,8 @@ void newSearch(HANDLE handle, int target, std::list<int>& addressList) {
 					cout << " " << info.AllocationProtect;
 					cout << " " << info.Type << endl;
 					**/
-					addressList.push_back((int)info.BaseAddress + offset);
+					AddressItem* ai = new AddressItem((int)info.BaseAddress + offset, value);
+					addressList.push_back(*ai);
 				}
 			}
 		}
@@ -64,14 +67,14 @@ void newSearch(HANDLE handle, int target, std::list<int>& addressList) {
 	cout << "newSearch: found " << addressList.size() << " items" << endl;
 }
 
-void contSearch(HANDLE handle, int target, list<int>& addressList) {
+void contSearch(HANDLE handle, int target, list<AddressItem>& addressList) {
 
 	cout << "contSearch: addressList contains " << addressList.size() << " items" << endl;
 
 	int value;
-	std::list<int>::iterator it = addressList.begin();
+	std::list<AddressItem>::iterator it = addressList.begin();
 	while (it != addressList.end()) {
-		ReadProcessMemory(handle, (PBYTE*)*it, &value, sizeof(value), 0);
+		ReadProcessMemory(handle, (PBYTE*)(it->getAddress()), &value, sizeof(value), 0);
 
 		//Debug use:
 		//cout << value << "-" << *it << endl;

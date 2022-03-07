@@ -10,13 +10,14 @@
 #include <list>
 #include "search.h" 
 #include  <iomanip>
+#include "addressitem.h"
 
 using namespace std;
 
-void doNewSearch(HANDLE handle, list<int>& addressList);
-void doContSearch(HANDLE handle, list<int>& addressList);
-void listAddress(list<int>& addressList);
-void doModify(HANDLE handle, list<int>& addressList);
+void doNewSearch(HANDLE handle, list<AddressItem>& addressList);
+void doContSearch(HANDLE handle, list<AddressItem>& addressList);
+void listAddress(HANDLE handle, list<AddressItem>& addressList);
+void doModify(HANDLE handle, list<AddressItem>& addressList);
 
 int main(int argc, char* argv[]) {
 
@@ -31,7 +32,7 @@ int main(int argc, char* argv[]) {
 		winddowsName = argv[2];
 	}
 	else {
-		cout << "error: unknow switch: " << argv[0];
+		cout << "error: unknown switch: " << argv[0];
 		exit(-1);
 	}
 
@@ -48,7 +49,7 @@ int main(int argc, char* argv[]) {
 
 	cout << "Created the windows handle" << endl;
 
-	list<int>* addressList = new list<int>;
+	list<AddressItem>* addressList = new list<AddressItem>;
 
 	char input = 0;
 
@@ -59,12 +60,12 @@ int main(int argc, char* argv[]) {
 		switch (input) {
 			case 'n':
 				doNewSearch(handle, *addressList);
-				listAddress(*addressList);
+				listAddress(handle, *addressList);
 				break;
 
 			case 'c':
 				doContSearch(handle, *addressList);
-				listAddress(*addressList);
+				listAddress(handle, *addressList);
 				break;
 
 			case 'm':
@@ -72,7 +73,7 @@ int main(int argc, char* argv[]) {
 				break;
 
 			case 'l':
-				listAddress(*addressList);
+				listAddress(handle, *addressList);
 				break;
 
 			case 'x':
@@ -122,8 +123,8 @@ int main(int argc, char* argv[]) {
 	*/
 }
 
-void doModify(HANDLE handle, list<int>& addressList) {
-	listAddress(addressList);
+void doModify(HANDLE handle, list<AddressItem>& addressList) {
+	listAddress(handle, addressList);
 	int index;
 	int value;
 	cout << "Enter index address you want to change:" << endl;
@@ -131,20 +132,20 @@ void doModify(HANDLE handle, list<int>& addressList) {
 	cout << "Enter value" << endl;
 	cin >> value;
 
-	std::list<int>::iterator it = addressList.begin();
+	std::list<AddressItem>::iterator it = addressList.begin();
 	std::advance(it, index);
 
-	WriteProcessMemory(handle, (PBYTE*)(*it), &value, sizeof(value), 0);
+	WriteProcessMemory(handle, (PBYTE*)(it->getAddress()), &value, sizeof(value), 0);
 }
 
-void doNewSearch(HANDLE handle, list<int> & addressList) {
+void doNewSearch(HANDLE handle, list<AddressItem> & addressList) {
 	int value = 0;
 	cout << "Enter your search value: ";
 	cin >> value;
 	newSearch(handle, value, addressList);
 }
 
-void doContSearch(HANDLE handle, list<int>& addressList) {
+void doContSearch(HANDLE handle, list<AddressItem>& addressList) {
 	int value = 0;
 
 	if (addressList.size() == 0) {
@@ -158,7 +159,7 @@ void doContSearch(HANDLE handle, list<int>& addressList) {
 	 
 }
 
-void listAddress(list<int>& addressList) {
+void listAddress(HANDLE handle, list<AddressItem>& addressList) {
 	int itemToList = 20;
 
 	if (addressList.size() == 0) {
@@ -166,12 +167,18 @@ void listAddress(list<int>& addressList) {
 		return;
 	}
 
-	std::list<int>::iterator it = addressList.begin();
+	std::list<AddressItem>::iterator it = addressList.begin();
 	int index = 0; 
 	while (it != addressList.end() && itemToList > index) {
-		std::cout << "[" << index << "] ";
-		std::cout << "0x" << std::setfill('0') << std::setw(10)  << std::hex << *it;
-		std::cout << std::dec << endl;
+
+		//update the lastValue
+		int value;
+		ReadProcessMemory(handle, (PBYTE*)(it->getAddress()), &value, sizeof(value), 0);
+		it->setLastValue(value);
+
+		std::cout << "["  << std::setw(2) << index << "] ";
+		std::cout << "0x" << std::setfill('0') << std::setw(10)  << std::hex << it->getAddress();
+		std::cout << std::dec << " Last value: " << it->getLastValue() << endl;
 		it++;
 		index++;
 	}
