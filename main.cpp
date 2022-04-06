@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
 		cout << "Menu: (p) Pointer menu, (m)Memory search menu, (x)Exit" << endl;
 		cin >> input;
 	
-		switch (input) {
+  		switch (input) {
 
 		case 'p':
 			while (input1 != 'b') {
@@ -99,6 +99,8 @@ int main(int argc, char* argv[]) {
 
 				}
 			}
+
+			input1 = '\0';  //clear 'b' key when go back to main menu
 			break;
 
 		case 'm':
@@ -128,6 +130,8 @@ int main(int argc, char* argv[]) {
 
 				}
 			}
+
+			input2 = '\0';	//clear 'b' key when go back to main menu
 			break;
 
 		case 'x':
