@@ -29,8 +29,6 @@ void updateHealthPoint(HANDLE hProcess);
 
 
 //Global variable
-std::string nameOfGame = "AssaultCube";
-
 // Ammo based address, offsets, target value
 DWORD BaseAddress = { 0x0057B0B8 }; //  playerBaseAddress
 //DWORD baseAddress = 0x0;
@@ -72,22 +70,22 @@ int main(int argc, char* argv[]) {
 
 	list<AddressItem>* addressList = new list<AddressItem>;
 
-	char input = 0;
-	char input1 = 0;
-	char input2 = 0;
+	char menuInput = 0;
+	char pointerMenuInput = 0;
+	char memorySearchInput = 0;
 
-	while (input != 'x') {
+	while (menuInput != 'x') {
 		cout << "Menu: (p) Pointer menu, (m)Memory search menu, (x)Exit" << endl;
-		cin >> input;
+		cin >> menuInput;
 	
-  		switch (input) {
+  		switch (menuInput) {
 
 		case 'p':
-			while (input1 != 'b') {
+			while (pointerMenuInput != 'b') {
 				cout << "Menu: (a)Update Ammo, (h)Update Health Point, (b)Back" << endl;
-				cin >> input1;
+				cin >> pointerMenuInput;
 
-				switch (input1) {
+				switch (pointerMenuInput) {
 
 				case 'a':
 					updateAmmo(handle);
@@ -100,15 +98,15 @@ int main(int argc, char* argv[]) {
 				}
 			}
 
-			input1 = '\0';  //clear 'b' key when go back to main menu
+			pointerMenuInput = '\0';  //clear 'b' key when go back to main menu
 			break;
 
 		case 'm':
-			while (input2 != 'b') {
-				cout << "Menu: (n)New search, (c)Continue search (m)Modify value, (l)List address, (b)Back" << endl;
-				cin >> input2;
+			while (memorySearchInput != 'b') {
+				cout << "Menu: (n)New search, (c)Continue search, (m)Modify value, (l)List address, (b)Back" << endl;
+				cin >> memorySearchInput;
 
-				switch (input2) {
+				switch (memorySearchInput) {
 
 				case 'n':
 					doNewSearch(handle, *addressList);
@@ -131,7 +129,7 @@ int main(int argc, char* argv[]) {
 				}
 			}
 
-			input2 = '\0';	//clear 'b' key when go back to main menu
+			memorySearchInput = '\0';	//clear 'b' key when go back to main menu
 			break;
 
 		case 'x':
@@ -141,59 +139,32 @@ int main(int argc, char* argv[]) {
 	}
 
 	return 0;
-	/*
-	* modify value example..............
-	* 
-	* 
-	
-	//	int n = 0x00400000 + 0x0017B0B8;
-	//	int* basePtr = &n; // 0x00400000 + 0x0017B0B8; // windows default base addr + ac.exe = base pointer
-
-	//	cout << "basePtr is " << hex << *basePtr << endl;
-	//	cout << "basePtr is " << hex << &basePtr << endl;
-
-	int baseAddr = 0x007551E0; // base pointer point to
-	int offset = 0x140; // ammo / money / whatever
-	int writeAmount = 20; // amount we want to write
-	
-	cout << "Base Addr is " << hex << baseAddr << endl;
-	cout << "Offset is " << hex << offset << endl;
-	cout << "Target Addr is " << hex << baseAddr + offset << endl;
-
-	DWORD targetAddr = (DWORD)(baseAddr + offset); // the amount address
-	cout << "Target Addr (DWORD) is " << targetAddr << endl;
-
-	if (processID == NULL) {
-		cout << "Cannot obtain process" << endl;
-		Sleep(3000);
-		exit(-1);
-	}
-	else {
-		//to test memory search:
-		doSearch(handle);
-			 
-		// Create infinte loop to write value into address
-		cout << "Hack begin" << endl;
-		while (true) {
-			WriteProcessMemory(handle, (PBYTE*)targetAddr, &writeAmount, sizeof(writeAmount), 0);
-		}
-	}
-	*/
 }
 
 void doModify(HANDLE handle, list<AddressItem>& addressList) {
 	listAddress(handle, addressList);
 	int index;
 	int value;
+	char isInfOverwrite = 'n';
 	cout << "Enter index address you want to change:" << endl;
 	cin >> index;
 	cout << "Enter value" << endl;
 	cin >> value;
+	cout << "Infinite overwrite? (y/n)" << endl;
+	cin >> isInfOverwrite;
 
 	std::list<AddressItem>::iterator it = addressList.begin();
 	std::advance(it, index);
 
-	WriteProcessMemory(handle, (PBYTE*)(it->getAddress()), &value, sizeof(value), 0);
+	if (isInfOverwrite == 'y') {
+		while (true) {
+			WriteProcessMemory(handle, (PBYTE*)(it->getAddress()), &value, sizeof(value), 0);
+		}
+	} else {
+		WriteProcessMemory(handle, (PBYTE*)(it->getAddress()), &value, sizeof(value), 0);
+
+	}
+
 }
 
 void doNewSearch(HANDLE handle, list<AddressItem> & addressList) {
@@ -247,25 +218,11 @@ void listAddress(HANDLE handle, list<AddressItem>& addressList) {
 }
 
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
-
-
-
 void updateAmmo(HANDLE hProcess)
 {	
 	int value = 0;
 	// Ammo Value read and update
 	DWORD finalPointer = findingFinalPointer(1, hProcess, AmmoOffsets, BaseAddress);
-	//cout << "final pointer" << finalPointer;
 
 	printf("Reading Ammo Value .... \n");
 	readFromMemory(hProcess, finalPointer);
@@ -275,9 +232,6 @@ void updateAmmo(HANDLE hProcess)
 
 	printf("Updating Ammo Value .... \n");
 	writeToMemory(hProcess, finalPointer, value);
-
-	//printf("Reading Ammo Value .... \n");
-	//readFromMemory(hProcess, finalPointer);
 
 	printf("\n\n");
 	
@@ -297,9 +251,6 @@ void updateHealthPoint(HANDLE hProcess)
 	printf("Updating Health Point Value .... \n");
 	writeToMemory(hProcess, finalPointer, value);
 
-	//printf("Reading Health Point Value .... \n");
-	//readFromMemory(hProcess, finalPointer);
-
 	printf("\n\n");
 	
 }
@@ -309,22 +260,15 @@ DWORD findingFinalPointer(int Pointerdepth, HANDLE hProcess, DWORD offsets[], DW
 {
 	DWORD pointerAddress;
 	DWORD tempPointer;
+	LPCVOID readAddress = (LPCVOID)BaseAddress;
 
 	for (int i = 0; i < Pointerdepth; i++)
 	{
-		if (i == 0)
-		{
-			ReadProcessMemory(hProcess, (LPCVOID)BaseAddress, &tempPointer, sizeof(tempPointer), 0);
-			pointerAddress = tempPointer + offsets[i];
-			//printf("The address of final address i=0 %p\n", pointerAddress);
-
+		if (i != 0) {
+			readAddress = (LPCVOID)pointerAddress;
 		}
-		else {
-			ReadProcessMemory(hProcess, (LPCVOID)pointerAddress, &tempPointer, sizeof(tempPointer), 0);
-			pointerAddress = tempPointer + offsets[i];
-		}
-		//printf("The value of i:%d \n",i);
-
+		ReadProcessMemory(hProcess, readAddress, &tempPointer, sizeof(tempPointer), 0);
+		pointerAddress = tempPointer + offsets[i];
 	}
 	return pointerAddress;
 }
