@@ -19,6 +19,27 @@ void doContSearch(HANDLE handle, list<AddressItem>& addressList);
 void listAddress(HANDLE handle, list<AddressItem>& addressList);
 void doModify(HANDLE handle, list<AddressItem>& addressList);
 
+// functions declaration using pointer
+DWORD findingProcessId();
+DWORD findingFinalPointer(int Pointerdepth, HANDLE hProcess, DWORD offsets[], DWORD BaseAddress);
+bool readFromMemory(HANDLE hProcess, DWORD address);
+bool writeToMemory(HANDLE hProcess, DWORD address, int value);
+void updateAmmo(HANDLE hProcess);
+void updateHealthPoint(HANDLE hProcess);
+
+
+//Global variable
+std::string nameOfGame = "AssaultCube";
+
+// Ammo based address, offsets, target value
+DWORD BaseAddress = { 0x0057B0B8 }; //  playerBaseAddress
+//DWORD baseAddress = 0x0;
+DWORD AmmoOffsets[] = { 0x140, 0x0 };
+DWORD healthPointOffsets[] = { 0xEC, 0x0 };
+
+
+
+
 int main(int argc, char* argv[]) {
 
 
@@ -52,33 +73,66 @@ int main(int argc, char* argv[]) {
 	list<AddressItem>* addressList = new list<AddressItem>;
 
 	char input = 0;
+	char input1 = 0;
+	char input2 = 0;
 
 	while (input != 'x') {
-		cout << "Menu: (n)New search, (c)Continue search (m)Modify value, (l)List address, (x)Exit" << endl;
+		cout << "Menu: (p) Pointer menu, (m)Memory search menu, (x)Exit" << endl;
 		cin >> input;
 	
 		switch (input) {
-			case 'n':
-				doNewSearch(handle, *addressList);
-				listAddress(handle, *addressList);
-				break;
 
-			case 'c':
-				doContSearch(handle, *addressList);
-				listAddress(handle, *addressList);
-				break;
+		case 'p':
+			while (input1 != 'b') {
+				cout << "Menu: (a)Update Ammo, (h)Update Health Point, (b)Back" << endl;
+				cin >> input1;
 
-			case 'm':
-				doModify(handle, *addressList);
-				break;
+				switch (input1) {
 
-			case 'l':
-				listAddress(handle, *addressList);
-				break;
+				case 'a':
+					updateAmmo(handle);
+					break;
 
-			case 'x':
-				exit(0);
-				break;
+				case 'h':
+					updateHealthPoint(handle);
+					break;
+
+				}
+			}
+			break;
+
+		case 'm':
+			while (input2 != 'b') {
+				cout << "Menu: (n)New search, (c)Continue search (m)Modify value, (l)List address, (b)Back" << endl;
+				cin >> input2;
+
+				switch (input2) {
+
+				case 'n':
+					doNewSearch(handle, *addressList);
+					listAddress(handle, *addressList);
+					break;
+
+				case 'c':
+					doContSearch(handle, *addressList);
+					listAddress(handle, *addressList);
+					break;
+
+				case 'm':
+					doModify(handle, *addressList);
+					break;
+
+				case 'l':
+					listAddress(handle, *addressList);
+					break;
+
+				}
+			}
+			break;
+
+		case 'x':
+			exit(0);
+			break;
 		}
 	}
 
@@ -199,3 +253,100 @@ void listAddress(HANDLE handle, list<AddressItem>& addressList) {
 //   4. Use the Error List window to view errors
 //   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
 //   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+
+
+
+void updateAmmo(HANDLE hProcess)
+{	
+	int value = 0;
+	// Ammo Value read and update
+	DWORD finalPointer = findingFinalPointer(1, hProcess, AmmoOffsets, BaseAddress);
+	//cout << "final pointer" << finalPointer;
+
+	printf("Reading Ammo Value .... \n");
+	readFromMemory(hProcess, finalPointer);
+
+	cout << "Enter your desire ammo value:" ;
+	cin >> value;
+
+	printf("Updating Ammo Value .... \n");
+	writeToMemory(hProcess, finalPointer, value);
+
+	//printf("Reading Ammo Value .... \n");
+	//readFromMemory(hProcess, finalPointer);
+
+	printf("\n\n");
+	
+}
+
+
+void updateHealthPoint(HANDLE hProcess)
+{
+	int value = 0;
+	DWORD finalPointer = findingFinalPointer(1, hProcess, healthPointOffsets, BaseAddress);
+	printf("Reading Health Point Value .... \n");
+	readFromMemory(hProcess, finalPointer);
+
+	cout << "Enter your desire health point:";
+	cin >> value;
+
+	printf("Updating Health Point Value .... \n");
+	writeToMemory(hProcess, finalPointer, value);
+
+	//printf("Reading Health Point Value .... \n");
+	//readFromMemory(hProcess, finalPointer);
+
+	printf("\n\n");
+	
+}
+
+//Find the final pointer address 
+DWORD findingFinalPointer(int Pointerdepth, HANDLE hProcess, DWORD offsets[], DWORD BaseAddress)
+{
+	DWORD pointerAddress;
+	DWORD tempPointer;
+
+	for (int i = 0; i < Pointerdepth; i++)
+	{
+		if (i == 0)
+		{
+			ReadProcessMemory(hProcess, (LPCVOID)BaseAddress, &tempPointer, sizeof(tempPointer), 0);
+			pointerAddress = tempPointer + offsets[i];
+			//printf("The address of final address i=0 %p\n", pointerAddress);
+
+		}
+		else {
+			ReadProcessMemory(hProcess, (LPCVOID)pointerAddress, &tempPointer, sizeof(tempPointer), 0);
+			pointerAddress = tempPointer + offsets[i];
+		}
+		//printf("The value of i:%d \n",i);
+
+	}
+	return pointerAddress;
+}
+
+
+bool readFromMemory(HANDLE hProcess, DWORD address)
+{
+	int rAmmoValue = -1;
+	BOOL rpmReturn2 = ReadProcessMemory(hProcess, (LPCVOID)address, &rAmmoValue, sizeof(rAmmoValue), 0);
+	if (rpmReturn2 == FALSE) {
+		cout << "ReadProcessMemory failed. GetLastError = " << dec << GetLastError() << endl;
+		system("pause");
+		return EXIT_FAILURE;
+	}
+	printf("The value is equal to %d \n", rAmmoValue);
+
+}
+
+bool writeToMemory(HANDLE hProcess, DWORD address, int value)
+{
+	BOOL rpmReturn2 = WriteProcessMemory(hProcess, (LPVOID)address, &value, sizeof(value), 0);
+	if (rpmReturn2 == FALSE) {
+		cout << "ReadProcessMemory failed. GetLastError = " << dec << GetLastError() << endl;
+		system("pause");
+		return EXIT_FAILURE;
+	}
+
+	printf("The value updated to %d \n", value);
+}
