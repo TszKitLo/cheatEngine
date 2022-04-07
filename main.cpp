@@ -19,9 +19,6 @@ void doNewSearch(HANDLE handle, list<AddressItem>& addressList);
 void doContSearch(HANDLE handle, list<AddressItem>& addressList);
 void doModify(HANDLE handle, list<AddressItem>& addressList);
 
-// functions declaration using pointer
-DWORD findingFinalPointer(int Pointerdepth, HANDLE hProcess, DWORD offsets[], DWORD BaseAddress);
-bool readFromMemory(HANDLE hProcess, DWORD address);
 void updateAmmo(HANDLE hProcess);
 void updateHealthPoint(HANDLE hProcess);
 
@@ -211,36 +208,4 @@ void updateHealthPoint(HANDLE hProcess)
 
 	printf("\n\n");
 	
-}
-
-//Find the final pointer address 
-DWORD findingFinalPointer(int Pointerdepth, HANDLE hProcess, DWORD offsets[], DWORD BaseAddress)
-{
-	DWORD pointerAddress;
-	DWORD tempPointer;
-	LPCVOID readAddress = (LPCVOID)BaseAddress;
-
-	for (int i = 0; i < Pointerdepth; i++)
-	{
-		if (i != 0) {
-			readAddress = (LPCVOID)pointerAddress;
-		}
-		ReadProcessMemory(hProcess, readAddress, &tempPointer, sizeof(tempPointer), 0);
-		pointerAddress = tempPointer + offsets[i];
-	}
-	return pointerAddress;
-}
-
-
-bool readFromMemory(HANDLE hProcess, DWORD address)
-{
-	int rAmmoValue = -1;
-	BOOL rpmReturn2 = ReadProcessMemory(hProcess, (LPCVOID)address, &rAmmoValue, sizeof(rAmmoValue), 0);
-	if (rpmReturn2 == FALSE) {
-		cout << "ReadProcessMemory failed. GetLastError = " << dec << GetLastError() << endl;
-		system("pause");
-		return EXIT_FAILURE;
-	}
-	printf("The value is equal to %d \n", rAmmoValue);
-
 }

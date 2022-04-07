@@ -15,3 +15,5 @@ using namespace std;
 void newSearch(HANDLE handle, int target, list<AddressItem>& addressList);
 void contSearch(HANDLE handle, int target, list<AddressItem>& addressList);
 void listAddress(HANDLE handle, list<AddressItem>& addressList);
+DWORD findingFinalPointer(int Pointerdepth, HANDLE hProcess, DWORD offsets[], DWORD BaseAddress);
+bool readFromMemory(HANDLE hProcess, DWORD address);
