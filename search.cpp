@@ -9,6 +9,7 @@
 #include <iostream>
 #include <list>
 #include "addressitem.h"
+#include <iomanip>
 
 using namespace std;
 
@@ -21,6 +22,9 @@ void newSearch(HANDLE handle, int target, std::list<AddressItem>& addressList) {
 	int itemCount = 0;
 	int printDotPerItem = 10;
 	int newLinePerItem = 1000;
+
+	// clear list before every new search
+	addressList.clear();
 
 	for (p = NULL;
 		VirtualQueryEx(handle, p, &info, sizeof(info)) == sizeof(info);
@@ -88,4 +92,33 @@ void contSearch(HANDLE handle, int target, list<AddressItem>& addressList) {
 		}
 	}
 	cout << "contSearch: found " << addressList.size() << " items" << endl;
+}
+
+void listAddress(HANDLE handle, list<AddressItem>& addressList) {
+	int itemToList = 20;
+
+	if (addressList.size() == 0) {
+		cout << "The list is empty, please start a new search" << endl;
+		return;
+	}
+
+	std::list<AddressItem>::iterator it = addressList.begin();
+	int index = 0;
+	while (it != addressList.end() && itemToList > index) {
+
+		//update the lastValue
+		int value;
+		ReadProcessMemory(handle, (PBYTE*)(it->getAddress()), &value, sizeof(value), 0);
+		it->setLastValue(value);
+
+		std::cout << "[" << std::setw(2) << index << "] ";
+		std::cout << "0x" << std::setfill('0') << std::setw(10) << std::hex << it->getAddress();
+		std::cout << std::dec << " Last value: " << it->getLastValue() << endl;
+		it++;
+		index++;
+	}
+
+	if (addressList.size() > itemToList) {
+		std::cout << "(another " << addressList.size() - itemToList << " hidden result.)" << endl;
+	}
 }

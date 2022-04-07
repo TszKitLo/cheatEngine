@@ -12,6 +12,5 @@
 
 using namespace std;
 
-void newSearch(HANDLE handle, int target, list<AddressItem>& addressList);
-void contSearch(HANDLE handle, int target, list<AddressItem>& addressList);
-void listAddress(HANDLE handle, list<AddressItem>& addressList);
+void modify(HANDLE handle, list<AddressItem>& addressList, int index, int value, char isInfOverwrite);
+bool writeToMemory(HANDLE hProcess, DWORD address, int value);

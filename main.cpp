@@ -11,19 +11,17 @@
 #include "search.h" 
 #include  <iomanip>
 #include "addressitem.h"
+#include "modify.h"
 
 using namespace std;
 
 void doNewSearch(HANDLE handle, list<AddressItem>& addressList);
 void doContSearch(HANDLE handle, list<AddressItem>& addressList);
-void listAddress(HANDLE handle, list<AddressItem>& addressList);
 void doModify(HANDLE handle, list<AddressItem>& addressList);
 
 // functions declaration using pointer
-DWORD findingProcessId();
 DWORD findingFinalPointer(int Pointerdepth, HANDLE hProcess, DWORD offsets[], DWORD BaseAddress);
 bool readFromMemory(HANDLE hProcess, DWORD address);
-bool writeToMemory(HANDLE hProcess, DWORD address, int value);
 void updateAmmo(HANDLE hProcess);
 void updateHealthPoint(HANDLE hProcess);
 
@@ -153,18 +151,7 @@ void doModify(HANDLE handle, list<AddressItem>& addressList) {
 	cout << "Infinite overwrite? (y/n)" << endl;
 	cin >> isInfOverwrite;
 
-	std::list<AddressItem>::iterator it = addressList.begin();
-	std::advance(it, index);
-
-	if (isInfOverwrite == 'y') {
-		while (true) {
-			WriteProcessMemory(handle, (PBYTE*)(it->getAddress()), &value, sizeof(value), 0);
-		}
-	} else {
-		WriteProcessMemory(handle, (PBYTE*)(it->getAddress()), &value, sizeof(value), 0);
-
-	}
-
+	modify(handle, addressList, index, value, isInfOverwrite);
 }
 
 void doNewSearch(HANDLE handle, list<AddressItem> & addressList) {
@@ -186,35 +173,6 @@ void doContSearch(HANDLE handle, list<AddressItem>& addressList) {
 	cout << "searching: " << value << endl;
 	contSearch(handle, value, addressList);
 	 
-}
-
-void listAddress(HANDLE handle, list<AddressItem>& addressList) {
-	int itemToList = 20;
-
-	if (addressList.size() == 0) {
-		cout << "The list is empty, please start a new search" << endl;
-		return;
-	}
-
-	std::list<AddressItem>::iterator it = addressList.begin();
-	int index = 0; 
-	while (it != addressList.end() && itemToList > index) {
-
-		//update the lastValue
-		int value;
-		ReadProcessMemory(handle, (PBYTE*)(it->getAddress()), &value, sizeof(value), 0);
-		it->setLastValue(value);
-
-		std::cout << "["  << std::setw(2) << index << "] ";
-		std::cout << "0x" << std::setfill('0') << std::setw(10)  << std::hex << it->getAddress();
-		std::cout << std::dec << " Last value: " << it->getLastValue() << endl;
-		it++;
-		index++;
-	}
-
-	if (addressList.size() > itemToList) {
-		std::cout << "(another " << addressList.size() - itemToList << " hidden result.)" << endl;
-	}
 }
 
 
@@ -285,16 +243,4 @@ bool readFromMemory(HANDLE hProcess, DWORD address)
 	}
 	printf("The value is equal to %d \n", rAmmoValue);
 
-}
-
-bool writeToMemory(HANDLE hProcess, DWORD address, int value)
-{
-	BOOL rpmReturn2 = WriteProcessMemory(hProcess, (LPVOID)address, &value, sizeof(value), 0);
-	if (rpmReturn2 == FALSE) {
-		cout << "ReadProcessMemory failed. GetLastError = " << dec << GetLastError() << endl;
-		system("pause");
-		return EXIT_FAILURE;
-	}
-
-	printf("The value updated to %d \n", value);
 }
