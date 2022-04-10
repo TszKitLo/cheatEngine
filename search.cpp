@@ -13,6 +13,10 @@
 
 using namespace std;
 
+const int INCREASED = 1;
+const int DECREASED = 2;
+
+
 // functions declaration using pointer
 DWORD findingFinalPointer(int Pointerdepth, HANDLE hProcess, DWORD offsets[], DWORD BaseAddress);
 bool readFromMemory(HANDLE hProcess, DWORD address);
@@ -126,6 +130,103 @@ void listAddress(HANDLE handle, list<AddressItem>& addressList) {
 		std::cout << "(another " << addressList.size() - itemToList << " hidden result.)" << endl;
 	}
 }
+
+void newUnknownScan(HANDLE handle, std::list<AddressItem>& addressList) {
+
+	MEMORY_BASIC_INFORMATION info;
+	unsigned char* p = NULL;
+
+	cout << "start new unknown value search:" << endl;
+	int itemCount = 0;
+	int printDotPerItem = 10;
+
+	// clear list before every new search
+	addressList.clear();
+
+	for (p = NULL;
+		VirtualQueryEx(handle, p, &info, sizeof(info)) == sizeof(info);
+		p += info.RegionSize)
+	{
+		if (info.State == MEM_COMMIT && info.AllocationProtect == PAGE_READWRITE && info.Type == MEM_PRIVATE) {
+			//cout << info.BaseAddress << "-" << info.RegionSize << " | " << info.Type << endl;
+
+			int value;
+			for (int offset = 0; offset < (int)info.RegionSize; offset += 4) {
+
+				DWORD targetAddr = (DWORD)((int)info.BaseAddress + offset);
+				ReadProcessMemory(handle, (PBYTE*)targetAddr, &value, sizeof(value), 0);
+
+				AddressItem* ai = new AddressItem((int)info.BaseAddress + offset, value);
+				addressList.push_back(*ai);
+				
+			}
+		}
+
+		if (itemCount % printDotPerItem == 0) {
+			cout << ".";
+		}
+
+		itemCount++;
+
+	}
+	cout << endl;
+
+	cout << "Unknown values scan: found " << addressList.size() << " items" << endl;
+}
+
+void unknownScanChanged(HANDLE handle, list<AddressItem>& addressList, int mode) {
+	int itemCount = 0;
+	int printDotPerItem = addressList.size() / 100;
+
+	if (mode == INCREASED) {
+		cout << "Search for increased values." << endl;
+	}
+	else if (mode == DECREASED) {
+		cout << "Search for decreased values." << endl;
+	}
+	else {
+		cout << "Error: unknown search mode" << endl;
+	}
+
+	if (addressList.size() == 0) {
+		cout << "Nothing to scan. Please start a new scan" << endl;
+		return;
+	}
+
+	int value;
+	std::list<AddressItem>::iterator it = addressList.begin();
+	while (it != addressList.end()) {
+		ReadProcessMemory(handle, (PBYTE*)(it->getAddress()), &value, sizeof(value), 0);
+
+		//Debug use:
+		//cout << value << "-" << *it << endl;
+
+		if ( mode == INCREASED && value > it->getLastValue()
+			|| mode == DECREASED && value < it->getLastValue()
+			){
+			//update the last value
+			it->setLastValue(value);
+			it++;
+		}
+		else {
+			it = addressList.erase(it);
+		}
+
+		if (printDotPerItem > 0 && itemCount % printDotPerItem == 0) {
+			cout << ".";
+			if (itemCount != 0 && itemCount % (printDotPerItem * 10) == 0) {
+				cout << (itemCount / printDotPerItem ) << "%";
+			}
+		}
+
+		itemCount++;
+	}
+
+	cout << endl << "Unknown values scan: found " << addressList.size() << " items" << endl;
+}
+
+
+
 
 //Find the final pointer address 
 DWORD findingFinalPointer(int Pointerdepth, HANDLE hProcess, DWORD offsets[], DWORD BaseAddress)

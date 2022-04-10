@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 	char memorySearchInput = 0;
 
 	while (menuInput != 'x') {
-		cout << "Menu: (p) Pointer menu, (m)Memory search menu, (x)Exit" << endl;
+		cout << "Menu: (p) Pointer menu, (m)Memory search menu, (u)Unknown value scan (x)Exit" << endl;
 		cin >> menuInput;
 	
   		switch (menuInput) {
@@ -126,6 +126,42 @@ int main(int argc, char* argv[]) {
 
 			memorySearchInput = '\0';	//clear 'b' key when go back to main menu
 			break;
+
+		case 'u':
+			while (memorySearchInput != 'b') {
+				cout << "Unknown value scan: (n)New scan, (+)Scan for increased value, (-)Scan for decreased value, (m)Modify value, (l)List address, (b)Back" << endl;
+				cin >> memorySearchInput;
+
+				switch (memorySearchInput) {
+
+				case 'n':
+					newUnknownScan(handle, *addressList);
+					listAddress(handle, *addressList);
+					break;
+
+				case '+':
+					unknownScanChanged(handle, *addressList, INCREASED);
+					listAddress(handle, *addressList);
+					break;
+
+				case '-':
+					unknownScanChanged(handle, *addressList, DECREASED);
+					break;
+
+				case 'm':
+					doModify(handle, *addressList);
+					break;
+
+				case 'l':
+					listAddress(handle, *addressList);
+					break;
+
+				}
+			}
+
+			memorySearchInput = '\0';	//clear 'b' key when go back to main menu
+			break;
+
 
 		case 'x':
 			exit(0);
