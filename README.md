@@ -11,8 +11,9 @@ You can also use unknown value search to look up the address for value that is n
 [1_bit_clicker_win.exe](https://i-am-44.itch.io/1-bit-dungeon-clicker)
 
 ## How to Test
-1. Run the game above
-2. Run `CheatEngine.exe -n AssaultCube` or `CheatEngine.exe -n "1bit clicker"`
+1. Run Visual Studio 2022 to open `testCheatEngine.sln` and build the project (The exe file is named as `testCheatEngine.exe` by default) or download `CheatEngine.exe` located in `bin` folder
+2. Run the game above
+3. Run `CheatEngine.exe -n AssaultCube` or `CheatEngine.exe -n "1bit clicker"`
 
 ## Main Menu
 `Menu: (p) Pointer menu, (m)Memory search menu, (u)Unknown value scan (x)Exit`
