@@ -6,7 +6,7 @@ You can also use unknown value search to look up the address for value that is n
 
 # Running the Cheat Engine
 ## Tested game supporting CheatEngine
-[Assault Cube 1.3.0.2](https://github.com/assaultcube/AC/releases/download/v1.3.0.2/AssaultCube_v1.3.0.2_LockdownEdition.exe)
+[Assault Cube 1.3.0.1](https://github.com/TszKitLo/testCheatEngine/raw/master/AssaultCube_v1.3.0.1_LockdownEdition_RC2.exe)
 
 [1_bit_clicker_win.exe](https://i-am-44.itch.io/1-bit-dungeon-clicker)
 
