@@ -17,14 +17,24 @@ This repo introduces a free opensource tool for memory scanning and utilizing th
 
 Enter :
 
-`p` to modify value by address pointer, `m` to memory search (exact value search), `u` to unknown value scan, `x` to exit
+`p` to modify value by address pointer
+
+`m` to memory search (exact value search)
+
+`u` to unknown value scan
+
+`x` to exit
 
 ## Pointer Menu (For Assualt Cube). 
 `Menu: (a)Update Ammo, (h)Update Health Point, (b)Back`
 
 Enter:
 
-`a` to update game ammo, `h` to update game health, `b` to go back.
+`a` to update game ammo
+
+`h` to update game health
+
+`b` to go back
 
 For update ammo, you need enter the ammo amount you want. Then, the program will overwrite the value automatically.
 For update health point, you need enter the health amount you want. Then, the program will overwrite the value automatically.
@@ -50,6 +60,7 @@ Unknown value scan provide extra option `(+)Scan for increased value` and `(-)Sc
 `Unknown value scan: (n)New scan, (+)Scan for increased value, (-)Scan for decreased value, (m)Modify value, (l)List address, (b)Back`
 
 `(+)Scan for increased value` will look up the addresses by search the values that is increased from the addresses list of the preceding scan.
+
 `(-)Scan for decreased value` will look up the addresses by search the values that is decreased from the addresses list of the preceding scan.
 
 
