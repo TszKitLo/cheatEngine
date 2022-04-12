@@ -252,7 +252,7 @@ bool readFromMemory(HANDLE hProcess, DWORD address)
 	int rAmmoValue = -1;
 	BOOL rpmReturn2 = ReadProcessMemory(hProcess, (LPCVOID)address, &rAmmoValue, sizeof(rAmmoValue), 0);
 	if (rpmReturn2 == FALSE) {
-		cout << "ReadProcessMemory failed. GetLastError = " << dec << GetLastError() << endl;
+		printf("ReadProcessMemory failed. \n");
 		system("pause");
 		return EXIT_FAILURE;
 	}
