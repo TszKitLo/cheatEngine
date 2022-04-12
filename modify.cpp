@@ -32,7 +32,7 @@ void modify(HANDLE handle, std::list<AddressItem>& addressList, int index, int v
 bool writeToMemory(HANDLE hProcess, DWORD address, int value) {
 	BOOL rpmReturn2 = WriteProcessMemory(hProcess, (LPVOID)address, &value, sizeof(value), 0);
 	if (rpmReturn2 == FALSE) {
-		cout << "ReadProcessMemory failed. GetLastError = " << dec << GetLastError() << endl;
+		printf("ReadProcessMemory failed \n");
 		system("pause");
 		return EXIT_FAILURE;
 	}
