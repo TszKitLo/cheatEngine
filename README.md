@@ -1,5 +1,7 @@
 # CheatEngine
-This repo introduces a free opensource tool for memory scanning and utilizing the pointer to modify the AmmoValue and Healthpoint in AssaultCube.
+This repo introduces a free opensource tool for memory scanning on any processes and game in Windows.
+It utlizies the pointer to modify the AmmoValue and Healthpoint in game AssaultCube.
+You can also use unknown value search to look up the address for value that is not explicitly known.
 
 
 # Running the Cheat Engine
@@ -52,15 +54,15 @@ Enter:
 
 `b` to go back
 
-`(m)Modify value` provides infinite write feature. To do that, select `y` when ifninite write option is shown. ![Screenshot 2022-04-11 185650](https://user-images.githubusercontent.com/13512755/162863585-abd6ad5f-c619-4723-b2a1-572ea7b1bd4a.png)
+`(m)Modify value` provides infinite write feature. To do that, select `y` when infinite write option is shown. ![Screenshot 2022-04-11 185650](https://user-images.githubusercontent.com/13512755/162863585-abd6ad5f-c619-4723-b2a1-572ea7b1bd4a.png)
 
 ## Unknown Value Scan Menu (For 1bit clicker)
 Unknown value scan provide extra option `(+)Scan for increased value` and `(-)Scan for decreased value`. Other options are similar to Memory menu.
 
 `Unknown value scan: (n)New scan, (+)Scan for increased value, (-)Scan for decreased value, (m)Modify value, (l)List address, (b)Back`
 
-`(+)Scan for increased value` will look up the addresses by search the values that is increased from the addresses list of the preceding scan.
+`(+)Scan for increased value` will look up the addresses from the addresses list of the preceding scan by searching the values that is increased.
 
-`(-)Scan for decreased value` will look up the addresses by search the values that is decreased from the addresses list of the preceding scan.
+`(-)Scan for decreased value` will look up the addresses from the addresses list of the preceding scan by searching the values that is decreased.
 
 
