@@ -43,7 +43,9 @@ For update health point, you need enter the health amount you want. Then, the pr
 
 ## Memory Search Menu (For Assualt Cube). 
 `Menu: (n)New search, (c)Continue search, (m)Modify value, (l)List address, (b)Back`
+
 Enter:
+
 `n` to perform new search of address by specificing value, 
 
 `c` to continue the search from preceding search result
