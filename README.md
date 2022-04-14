@@ -10,10 +10,18 @@ You can also use unknown value search to look up the address for value that is n
 
 [1_bit_clicker_win.exe](https://i-am-44.itch.io/1-bit-dungeon-clicker)
 
+## Testing Environment
+- Windows 7 64bit
+- Assault Cube 1.3.0.1
+- 1_bit_clicker_win
+- development environment: Visual Studio 2022 with c++
+
 ## How to Test
 1. Run Visual Studio 2022 to open `testCheatEngine.sln` and build the project (The exe file is named as `testCheatEngine.exe` by default) or download `CheatEngine.exe` located in `bin` folder
 2. Run the game above
 3. Run `CheatEngine.exe -n AssaultCube` or `CheatEngine.exe -n "1bit clicker"`
+
+In case, a different version of windows is used as a testing environment, it is required to retarget the project inside the visual studio to the target windows version.
 
 ## Main Menu
 `Menu: (p) Pointer menu, (m)Memory search menu, (u)Unknown value scan (x)Exit`
