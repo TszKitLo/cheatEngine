@@ -15,6 +15,7 @@ You can also use unknown value search to look up the address for value that is n
 - Assault Cube 1.3.0.1
 - 1_bit_clicker_win
 - development environment: Visual Studio 2022 with c++
+
 [VM Image of testing environment](https://s3.us-west-2.amazonaws.com/cmpt733.vm/Windows7_733_final.ova)
 
 ## How to Test
